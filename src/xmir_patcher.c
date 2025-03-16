@@ -89,6 +89,8 @@ typedef struct _mod_data {
 static int update_resp(int code, const char * resp)
 {
     g.resp_code = code;
+    pr_info("update_resp: enter");
+   
     if (code == INT_MIN) {
         g.resp[0] = 0;
         return 0;
@@ -104,6 +106,7 @@ static int update_resp(int code, const char * resp)
         }
         strncpy(g.resp, resp, MAX_RESP_LEN);
     }
+    pr_info("update_resp: exit");
     return 0;
 }
 
@@ -249,6 +252,7 @@ static ssize_t dev_write(struct file * fileptr, const char * buffer, size_t len,
     
     pr_info("recv: buffer = %px, len = %zu, offset = %d", buffer, len, offset ? (int)*offset : -1);
     update_resp(INT_MIN, NULL);
+    pr_info("recv: after update_resp");
     g.cmd[0] = 0;
     g.cmd_arg_num = 0;
 
@@ -260,7 +264,9 @@ static ssize_t dev_write(struct file * fileptr, const char * buffer, size_t len,
         pr_err("recv: Invalid arg len = %zu", len);
         return -EINVAL;
     }
+    pr_info("recv: before copy_from_user");
     retval = copy_from_user(g.cmd, buffer, len);
+    pr_info("recv: after copy_from_user");
     if (retval != 0) {
         pr_err("recv: copy_from_user ret_val = %lu", retval);
         g.cmd[0] = 0;
